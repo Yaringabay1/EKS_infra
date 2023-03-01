@@ -1,4 +1,5 @@
 resource "kubernetes_deployment" "app-server" {
+  depends_on = [module.eks.cluster_status]
   metadata {
     name = "statuspage"
     labels = {

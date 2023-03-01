@@ -1,3 +1,4 @@
+
 # VPC module
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -25,7 +26,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
 
-  cluster_name    = var.cluster_id
+  cluster_name    = "amit-cluster-2"
   cluster_version = "1.24"
 
   cluster_endpoint_public_access  = true
@@ -42,48 +43,37 @@ module "eks" {
 
   vpc_id = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+  control_plane_subnet_ids = module.vpc.public_subnets
 
 
-    # Self Managed Node Group(s)
-  self_managed_node_group_defaults = {
-    instance_type                          = "t2.micro"
-    update_launch_template_default_version = true
-    iam_role_additional_policies = {
-      AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-    }
+   # EKS Managed Node Group(s)
+  eks_managed_node_group_defaults = {
+    name = "amit-2-cluster-workers"
+    instance_types = ["t2.medium"]
   }
 
-  self_managed_node_groups = {
-    one = {
-      name         = "mixed-1"
-      max_size     = 5
+  eks_managed_node_groups = {
+    blue = {}
+    workers = {
+      min_size     = 2
+      max_size     = 10
       desired_size = 2
 
-      use_mixed_instances_policy = true
-      mixed_instances_policy = {
-        instances_distribution = {
-          on_demand_base_capacity                  = 0
-          on_demand_percentage_above_base_capacity = 10
-          spot_allocation_strategy                 = "capacity-optimized"
-        }
-        override = [
-          {
-            instance_type     = "t2.medium"
-            weighted_capacity = "1"
-          },
-          {
-            instance_type     = "t2.micro"
-            weighted_capacity = "2"
-          },
-        ]
-      }
+      instance_types = ["t2.medium"]
+      capacity_type  = "SPOT"
     }
-
-  tags = {
-    Terraform   = "true"
-    Environment = "dev"
   }
-}
+   create_iam_role          = true
+      iam_role_name            = "eks-managed-node-group-complete-example"
+      iam_role_use_name_prefix = false
+      iam_role_description     = "EKS managed node group complete example role"
+      iam_role_tags = {
+        Purpose = "Protector of the kubelet"
+      }
+      iam_role_additional_policies = {
+        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      }
+
 }
 
 # # ASG

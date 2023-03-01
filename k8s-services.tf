@@ -1,4 +1,5 @@
 resource "kubernetes_service_v1" "app-server-service" {
+  depends_on = [module.eks.cluster_status]
   metadata {
     name = "statuspage-service"
   }

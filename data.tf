@@ -3,7 +3,7 @@ data "aws_region" "current" {}
 
 data "aws_eks_cluster" "cluster" {
   name = var.cluster_id
- 
+  depends_on = [module.eks.cluster_status] 
 }
 
 data "aws_eks_cluster_auth" "cluster" {

@@ -1,6 +1,7 @@
 
 
 resource "helm_release" "nginx-ingress-controller" {
+  depends_on = [module.eks.cluster_status]
   name       = "nginx-ingress-controller"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "nginx-ingress-controller"
