@@ -26,7 +26,7 @@ resource "kubernetes_deployment" "app-server" {
 
       spec {
         container {
-          image = "yaringabay1/app_60:latest"
+          image = "yaringabay1/app:latest"
           name  = "actual-cont-app"
 
           resources {
